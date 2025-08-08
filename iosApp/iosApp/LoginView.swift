@@ -9,7 +9,7 @@ struct LoginView: View {
     @State private var passwordError: String? = nil
     @State private var isLoading = false
 
-    private let authUseCases = SharedModuleKt.provideAuthUseCases()
+    private let authUseCases = SharedModule.shared.provideAuthUseCases()
 
     var body: some View {
         VStack(spacing: 20) {
@@ -26,7 +26,7 @@ struct LoginView: View {
             .keyboardType(.emailAddress)
             .autocapitalization(.none)
             .onChange(of: email) { newValue in
-                emailError = ValidatorsKt.isValidEmail(email: newValue) ? nil : "Invalid email format"
+                emailError = Validators.shared.isValidEmail(email: newValue) ? nil : "Invalid email format"
             }
 
             CustomTextField(
@@ -37,7 +37,7 @@ struct LoginView: View {
                 error: passwordError
             )
             .onChange(of: password) { newValue in
-                passwordError = ValidatorsKt.isValidPassword(password: newValue) ? nil : "Password must be 6+ characters"
+                passwordError = Validators.shared.isValidPassword(password: newValue) ? nil : "Password must be 6+ characters"
             }
 
             PrimaryButton(
@@ -67,14 +67,15 @@ struct LoginView: View {
             Spacer()
         }
         .padding()
+        .navigationBarBackButtonHidden(true)
     }
 
     private func performLogin() {
         isLoading = true
         Task {
             do {
-                let result = try await authUseCases.login(email: email, password: password).getOrThrow()
-                print("Login successful: \(result.fullName)")
+                let result = try await authUseCases.login(email: email, password: password)
+                print("Login successful: \(result)")
                 onNavigate(AppRoute.Home())
             } catch {
                 print("Login failed: \(error.localizedDescription)")

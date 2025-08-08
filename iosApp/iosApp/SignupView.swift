@@ -3,6 +3,7 @@ import Shared
 
 struct SignupView: View {
     let onNavigate: (AppRoute) -> Void
+    let onPop: () -> Void
     @State private var fullName = ""
     @State private var email = ""
     @State private var password = ""
@@ -14,7 +15,7 @@ struct SignupView: View {
     @State private var confirmPasswordError: String? = nil
     @State private var isLoading = false
 
-    private let authUseCases = SharedModuleKt.provideAuthUseCases()
+    private let authUseCases = SharedModule.shared.provideAuthUseCases()
 
     var body: some View {
         VStack(spacing: 20) {
@@ -29,7 +30,7 @@ struct SignupView: View {
                 error: fullNameError
             )
             .onChange(of: fullName) { newValue in
-                fullNameError = ValidatorsKt.isValidFullName(name: newValue) ? nil : "Full name must be longer than 2 characters"
+                fullNameError = Validators.shared.isValidFullName(fullName: newValue) ? nil : "Full name must be longer than 2 characters"
             }
 
             CustomTextField(
@@ -41,7 +42,7 @@ struct SignupView: View {
             .keyboardType(.emailAddress)
             .autocapitalization(.none)
             .onChange(of: email) { newValue in
-                emailError = ValidatorsKt.isValidEmail(email: newValue) ? nil : "Invalid email format"
+                emailError = Validators.shared.isValidEmail(email: newValue) ? nil : "Invalid email format"
             }
 
             CustomTextField(
@@ -52,7 +53,7 @@ struct SignupView: View {
                 error: passwordError
             )
             .onChange(of: password) { newValue in
-                passwordError = ValidatorsKt.isValidPassword(password: newValue) ? nil : "Password must be 6+ characters"
+                passwordError = Validators.shared.isValidPassword(password: newValue) ? nil : "Password must be 6+ characters"
             }
 
             CustomTextField(
@@ -75,7 +76,7 @@ struct SignupView: View {
             HStack {
                 Text("Already have an account?")
                 Button("Login") {
-                    onNavigate(AppRoute.Login())
+                    onPop()
                 }
             }
             .padding(.top, 10)
@@ -93,14 +94,27 @@ struct SignupView: View {
             Spacer()
         }
         .padding()
+        .navigationBarBackButtonHidden(true) // Hide default back button
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    onPop()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
+        }
     }
 
     private func performSignup() {
         isLoading = true
         Task {
             do {
-                let result = try await authUseCases.signup(fullName: fullName, email: email, password: password).getOrThrow()
-                print("Signup successful: \(result.fullName)")
+                let user = try await authUseCases.signup(fullName: fullName, email: email, password: password)
+                print("Signup successful: \(user ?? "Unknown")")
                 onNavigate(AppRoute.Home())
             } catch {
                 print("Signup failed: \(error.localizedDescription)")
@@ -113,6 +127,6 @@ struct SignupView: View {
 
 struct SignupView_Previews: PreviewProvider {
     static var previews: some View {
-        SignupView(onNavigate: { _ in })
+        SignupView(onNavigate: { _ in }, onPop: {})
     }
 }

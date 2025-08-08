@@ -11,7 +11,7 @@ struct OnboardingPage: Identifiable {
 struct OnboardingView: View {
     let onNavigate: (AppRoute) -> Void
     @State private var currentPage = 0
-    private let authUseCases = SharedModuleKt.provideAuthUseCases()
+    private let authUseCases = SharedModule.shared.provideAuthUseCases()
 
     let pages = [
         OnboardingPage(imageName: "photo", title: "Welcome", subtitle: "Discover amazing features with our app."),

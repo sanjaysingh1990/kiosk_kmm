@@ -3,7 +3,7 @@ import Shared
 
 struct SplashView: View {
     let onNavigate: (AppRoute) -> Void
-    private let authUseCases = SharedModuleKt.provideAuthUseCases()
+    private let authUseCases = SharedModule.shared.provideAuthUseCases()
 
     var body: some View {
         VStack {
