@@ -6,8 +6,11 @@ plugins {
     alias(libs.plugins.androidLibrary)
 }
 
+
+
 kotlin {
     androidTarget {
+
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -28,6 +31,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // put your Multiplatform dependencies here
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+            implementation("com.russhwolf:multiplatform-settings:1.2.0")
+            implementation("com.russhwolf:multiplatform-settings-coroutines:1.2.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -38,6 +44,7 @@ kotlin {
 android {
     namespace = "com.kioskkmm.project.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
